@@ -2,7 +2,10 @@ package co.develhope.redis.services;
 
 import co.develhope.redis.entities.Utente;
 import co.develhope.redis.entities.UtenteJPA;
-import co.develhope.redis.repositories.UtenteRepository;
+import co.develhope.redis.entities.UtenteRedis;
+import co.develhope.redis.repositories.UtenteRedisRepository;
+import co.develhope.redis.repositories.UtenteRepositoryJPA;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,52 +16,57 @@ import java.util.Optional;
 public class UtenteService {
 
     @Autowired
-    UtenteRepository utenteRepository;
+    UtenteRepositoryJPA utenteRepositoryJPA;
+    @Autowired
+    UtenteRedisRepository utenteRedisRepository;
 
-    public UtenteService(UtenteRepository utenteRepository){
-        this.utenteRepository = utenteRepository;
+    public UtenteRedis convertData(UtenteJPA utenteJPA){
+        UtenteRedis utenteRedis = new UtenteRedis();
+        BeanUtils.copyProperties(utenteJPA,utenteRedis);
+        return utenteRedis;
     }
 
-    public UtenteJPA newUtente(UtenteJPA utente)throws Exception{
+    public UtenteJPA createUtente(UtenteJPA utente)throws Exception{
         try {
             if (utente==null) return null;
-            return utenteRepository.saveAndFlush(utente);
+            utente.setId(null);
+            return utenteRepositoryJPA.saveAndFlush(utente);
         }catch (Exception e){
             throw new Exception("Utente non trovato :(");
         }
     }
-    public List<UtenteJPA> getUtenti() throws Exception{
-        List<UtenteJPA> utentiFromDB = utenteRepository.findAll();
+    public List<? extends Utente> readAllUtenti() throws Exception{
+        List<UtenteJPA> utentiFromDB = utenteRepositoryJPA.findAll();
         if (utentiFromDB.isEmpty()) throw new Exception("Utenti non trovati :(");
         return utentiFromDB;
     }
 
-    public Optional<UtenteJPA> getUtenteByID(long id) throws Exception {
+    public Optional<UtenteJPA> readUtenteByID(long id) throws Exception {
         try {
-            return utenteRepository.findById(id);
+            return utenteRepositoryJPA.findById(id);
         } catch (Exception e) {
             throw new Exception("ID non trovato :(");
         }
     }
 
-    public UtenteJPA replaceUtenteByID(long id){
-        UtenteJPA newUtente = utenteRepository.getReferenceById(id);
-        return utenteRepository.findById(id)
+    public UtenteJPA updateUtenteByID(long id){
+        UtenteJPA newUtente = utenteRepositoryJPA.getReferenceById(id);
+        return utenteRepositoryJPA.findById(id)
                 .map(utente -> {
                     utente.setName(newUtente.getName());
                     utente.setSurname(newUtente.getSurname());
                     utente.setAge(newUtente.getAge());
-                    return utenteRepository.saveAndFlush(utente);
+                    return utenteRepositoryJPA.saveAndFlush(utente);
                 })
                 .orElseGet(() -> {
                     newUtente.setId(id);
-                    return utenteRepository.saveAndFlush(newUtente);
+                    return utenteRepositoryJPA.saveAndFlush(newUtente);
                 });
     }
 
     public void deleteUtente(long id)throws Exception{
         try {
-            utenteRepository.deleteById(id);
+            utenteRepositoryJPA.deleteById(id);
         }catch(Exception e){
             throw new Exception("Impossibile trovare l'ID da cancellare");
         }

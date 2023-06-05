@@ -17,20 +17,20 @@ public class UtenteController {
 
     @PostMapping("create")
     public UtenteJPA newUtente(@RequestBody UtenteJPA newUtente) throws Exception{
-        return utenteService.newUtente(newUtente);
+        return utenteService.createUtente(newUtente);
     }
     @GetMapping("/getAll")
-    public List<UtenteJPA> getAllUtenti()throws Exception{
-        return utenteService.getUtenti();
+    public List<? extends Utente> getAllUtenti()throws Exception{
+        return utenteService.readAllUtenti();
     }
     @GetMapping("/{id}")
     public Optional<UtenteJPA> getUtente(@PathVariable Long id)throws Exception{
-        return utenteService.getUtenteByID(id);
+        return utenteService.readUtenteByID(id);
     }
 
     @PutMapping("/{id}")
     public UtenteJPA updateUtente(@PathVariable Long id){
-        return utenteService.replaceUtenteByID(id);
+        return utenteService.updateUtenteByID(id);
     }
     @DeleteMapping("/{id}")
     public void deleteUtente(@PathVariable Long id)throws Exception{

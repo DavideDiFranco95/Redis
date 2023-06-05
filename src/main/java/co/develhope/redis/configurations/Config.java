@@ -20,7 +20,7 @@ public class Config {
     @Value("${redis.database}")
     private int database;
 
-    @Bean
+    /*@Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisConfiguration = new RedisStandaloneConfiguration();
         redisConfiguration.setHostName(host);
@@ -31,6 +31,14 @@ public class Config {
         JedisClientConfiguration.JedisClientConfigurationBuilder jedisClientConfiguration = JedisClientConfiguration.builder();
 
         return new JedisConnectionFactory(redisConfiguration, jedisClientConfiguration.build());
+    }*/
+
+    @Bean
+    JedisConnectionFactory jedisConnectionFactory(){
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
+        redisStandaloneConfiguration.setPassword(RedisPassword.of(password));
+        redisStandaloneConfiguration.setDatabase(0);
+        return new JedisConnectionFactory(redisStandaloneConfiguration);
     }
 
     @Bean
